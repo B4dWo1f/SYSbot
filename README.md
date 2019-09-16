@@ -9,6 +9,7 @@ picture - Take a picture from the webcam and send it
 screenshot - Take a screenshot and send it
 sound - Record sound from the microphone and send it
 where - Return the IP where the bot is running
+wherelocal - Return the local IP where the bot is running
 whothere - Return all the devices connected to the bot's network
 whoami - Return the Telegram information about the user
 who - Linux who implementation
