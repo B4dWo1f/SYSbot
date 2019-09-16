@@ -8,6 +8,8 @@ from telegram.ext import CommandHandler as CH #, MessageHandler, Filters
 import datetime as dt
 import os
 here = os.path.dirname(os.path.realpath(__file__))
+HOSTNAME = os.uname()[1]
+HOME = os.getenv('HOME')
 import logging
 logging.basicConfig(level=logging.INFO,
                  format='%(asctime)s %(name)s:%(levelname)s - %(message)s',
@@ -65,8 +67,8 @@ if __name__ == '__main__':
 
    try: token = sys.argv[1]
    except IndexError:
-      if os.path.isfile(here+'/gallifrey.token'):
-         token = here+'/gallifrey.token'
+      if os.path.isfile(here+f'/{HOSTNAME}.token'):
+         token = here+f'/{HOSTNAME}.token'
       else:
          print('File not specified')
          exit()
