@@ -7,9 +7,9 @@ from functools import wraps
 import os
 here = os.path.dirname(os.path.realpath(__file__))
 
-LIST_OF_ADMINS_un = open('username.whitelist','r').read().strip().splitlines()
-LIST_OF_ADMINS_id = open('chatid.whitelist','r').read().strip().splitlines()
-LIST_OF_ADMINS_id = [int(x) for x in LIST_OF_ADMINS_id]
+ADMINS_un = open('username.whitelist','r').read().strip().splitlines()
+ADMINS_id = open('chatid.whitelist','r').read().strip().splitlines()
+ADMINS_id = [int(x) for x in ADMINS_id]
 
 def encode_credentials(key, chatid, fname='bot.token'):
    """ Encode the key and main chatid in a file """
@@ -33,7 +33,7 @@ def restricted(func):
       user_id = update.effective_user.id
       user_nm = update.effective_user.username
       chatID = update.message.chat_id
-      if user_id not in LIST_OF_ADMINS_id or user_nm not in LIST_OF_ADMINS_un:
+      if user_id not in ADMINS_id or user_nm not in ADMINS_un:
          txt = "Unauthorized access denied for %s (%s)"%(user_nm,user_id)
          bot.send_message(chat_id=chatID, text=txt, parse_mode='Markdown')
          return

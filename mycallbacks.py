@@ -98,6 +98,14 @@ def whereRyou(bot,update):
       txt += l.strip() + '\n'
    bot.send_message(chatID, text=txt[:-1],parse_mode='Markdown')
 
+def whereRyoulocal(bot,update):
+   """ Return the local IP where the bot is running """
+   chatID = update.message.chat_id
+   bot.send_chat_action(chat_id=chatID, action=ChatAction.TYPING)
+   ips = os.popen('hostname -I').read().strip().split()
+   txt = 'My local IP:\n'+' '.join(ips)
+   bot.send_message(chatID, text=txt,parse_mode='Markdown')
+
 @CR.restricted
 def whoSthere(bot,update):
    """ Return all the devices connected to the bot's network """

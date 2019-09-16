@@ -3,8 +3,9 @@
 
 from threading import Thread
 # Telegram-Bot libraries
-from telegram.ext import Updater
+from telegram.ext import Updater, Filters
 from telegram.ext import CommandHandler as CH #, MessageHandler, Filters
+import datetime as dt
 import os
 here = os.path.dirname(os.path.realpath(__file__))
 import logging
@@ -47,6 +48,17 @@ def restart(bot,update):
    bot.send_message(chat_id=chatID, text=txt, parse_mode='Markdown')
    Thread(target=stop_and_restart).start()
 
+## Start bot ###################################################################
+@CR.restricted
+def start(bot, update):
+   txt = "Welcome, this a test of a private bot"
+   txt += ", don't blame me if it doesn't work for you ;p"
+   bot.send_message(chat_id=update.message.chat_id, text=txt)
+
+def ready(bot,job):
+   txt = 'Hi sir! ready for duty'
+   bot.send_message(chatID, text=txt, parse_mode='Markdown')
+
 
 if __name__ == '__main__':
    import sys
@@ -59,7 +71,7 @@ if __name__ == '__main__':
          print('File not specified')
          exit()
    
-   token, chatID= CR.get_credentials(token)
+   token, chatID = CR.get_credentials(token)
 
    ## Define the Bot
    upt = Updater(token=token)
@@ -73,9 +85,11 @@ if __name__ == '__main__':
 
    #sentinel handlers
    dpt.add_handler(CH('screenshot',cb.screenshot, pass_job_queue=True))
-   dpt.add_handler(CH('picture', cb.picture, pass_job_queue=True))
+   dpt.add_handler(CH('picture', cb.picture, Filters.chat(CR.ADMINS_id),
+                                             pass_job_queue=True))
    dpt.add_handler(CH('sound', cb.sound))
-   dpt.add_handler(CH('where', cb.whereRyou))
+   dpt.add_handler(CH('where', cb.whereRyou, Filters.chat(CR.ADMINS_id)))
+   dpt.add_handler(CH('wherelocal', cb.whereRyoulocal))
    dpt.add_handler(CH('whothere', cb.whoSthere))
    dpt.add_handler(CH('whoami', cb.whoami))
    dpt.add_handler(CH('who', cb.who))
@@ -84,7 +98,12 @@ if __name__ == '__main__':
    dpt.add_handler(CH('hola', cb.hola, pass_job_queue=True))
    dpt.add_handler(CH('reload', restart))
    dpt.add_handler(CH('stop', stop))
+   #dpt.add_handler(CH('start', start,))
+   dpt.add_handler(CH("start", start, Filters.chat(CR.ADMINS_id)))
    
+
+   now = dt.datetime.now()
+   jbq.run_once(ready, now)
 
    ## Launch bot
    upt.start_polling()

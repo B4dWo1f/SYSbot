@@ -13,5 +13,4 @@ whothere - Return all the devices connected to the bot's network
 whoami - Return the Telegram information about the user
 who - Linux who implementation
 reload - Stop and restarts de bot
-reload - Stop and restarts de bot
 stop - Stop the daemon
