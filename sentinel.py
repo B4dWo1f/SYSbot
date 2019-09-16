@@ -65,8 +65,8 @@ if __name__ == '__main__':
 
    try: token = sys.argv[1]
    except IndexError:
-      if os.path.isfile(here+'/RAVENsys.token'):
-         token = here+'/RAVENsys.token'
+      if os.path.isfile(here+'/gallifrey.token'):
+         token = here+'/gallifrey.token'
       else:
          print('File not specified')
          exit()

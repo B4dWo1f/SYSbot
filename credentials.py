@@ -7,8 +7,8 @@ from functools import wraps
 import os
 here = os.path.dirname(os.path.realpath(__file__))
 
-ADMINS_un = open('username.whitelist','r').read().strip().splitlines()
-ADMINS_id = open('chatid.whitelist','r').read().strip().splitlines()
+ADMINS_un = open(here+'/username.whitelist','r').read().strip().splitlines()
+ADMINS_id = open(here+'/chatid.whitelist','r').read().strip().splitlines()
 ADMINS_id = [int(x) for x in ADMINS_id]
 
 def encode_credentials(key, chatid, fname='bot.token'):
