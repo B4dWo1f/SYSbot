@@ -12,7 +12,7 @@ import logging
 logging.basicConfig(level=logging.INFO,
                  format='%(asctime)s %(name)s:%(levelname)s - %(message)s',
                  datefmt='%Y/%m/%d-%H:%M',
-                 filename=here+'/main.log', filemode='w')
+                 filename=here+'/sentinel.log', filemode='w')
 LG = logging.getLogger('main')
 # My functions
 import credentials as CR
