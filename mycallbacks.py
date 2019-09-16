@@ -8,6 +8,7 @@ import tools
 import geoip
 import check
 import os
+here = os.path.dirname(os.path.realpath(__file__))
 import credentials as CR
 
 ## Action functions
@@ -157,6 +158,16 @@ def screen_lock(bot,update):
    os.system(com)
    bot.send_message(chat_id=chatID, text='Screen locked',
                     disable_notification=True, parse_mode='Markdown')
+
+@CR.restricted
+def pull(bot,update):
+   """ On-demand git pull DANGEROUS!!! """
+   chatID = update.message.chat_id
+   com = f'cd {here} && git pull'
+   txt = os.popen(com).read().strip()
+   bot.send_message(chat_id=chatID, text=txt,
+                    disable_notification=True, parse_mode='Markdown')
+
 
 def conference_mode(bot,update):
    """

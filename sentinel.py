@@ -98,7 +98,7 @@ if __name__ == '__main__':
    dpt.add_handler(CH('hola', cb.hola, pass_job_queue=True))
    dpt.add_handler(CH('reload', restart))
    dpt.add_handler(CH('stop', stop))
-   #dpt.add_handler(CH('start', start,))
+   dpt.add_handler(CH('pull', cb.pull,Filters.chat(CR.ADMINS_id)))
    dpt.add_handler(CH("start", start, Filters.chat(CR.ADMINS_id)))
    
 
