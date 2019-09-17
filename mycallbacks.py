@@ -219,6 +219,15 @@ def screen_lock(bot,update):
                     disable_notification=True, parse_mode='Markdown')
 
 @CR.restricted
+def screen_unlock(bot,update):
+   """ Lock the computer """
+   chatID = update.message.chat_id
+   com = 'gnome-screensaver-command -d'
+   os.system(com)
+   bot.send_message(chat_id=chatID, text='Screen unlocked',
+                    disable_notification=True, parse_mode='Markdown')
+
+@CR.restricted
 def pull(bot,update):
    """ On-demand git pull DANGEROUS!!! """
    chatID = update.message.chat_id
