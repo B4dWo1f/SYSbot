@@ -233,9 +233,26 @@ def pull(bot,update):
    chatID = update.message.chat_id
    com = f'cd {here} && git pull'
    txt = os.popen(com).read().strip()
+   txt = '`' + txt + '`'
    bot.send_message(chat_id=chatID, text=txt,
                     disable_notification=True, parse_mode='Markdown')
 
+def top(bot,update):
+   """ Return the first n lines of top command """
+   chatID = update.message.chat_id
+   n = 7   # TODO enter ir as argument
+   tmp = '/tmp/top.txt'
+   com = f'top -b -n 1 > {tmp} '
+   com += f'&& tail -n +6 {tmp} && rm {tmp}'
+   top = os.popen(com).read().strip()
+   keep = []
+   for l in top.splitlines()[:n]:
+      ll = l.split()
+      l0='%6s %5s %5s %5s %9s %5s'%(ll[0], ll[1], ll[8], ll[9], ll[10], ll[11])
+      keep.append(l0)
+   top = '`' + '\n'.join(keep) + '`'
+   bot.send_message(chat_id=chatID, text=top,
+                    disable_notification=True, parse_mode='Markdown')
 
 def conference_mode(bot,update):
    """
