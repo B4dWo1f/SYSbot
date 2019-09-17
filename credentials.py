@@ -3,6 +3,8 @@
 
 from base64 import b64decode as decode
 from base64 import b64encode as encode
+import string
+from random import choice
 from functools import wraps
 import os
 here = os.path.dirname(os.path.realpath(__file__))
@@ -25,6 +27,13 @@ def get_credentials(api_file=here+'/telegram_bot.private'):
    bot_token = decode(api_key[0]).decode('utf-8')
    bot_chatID = decode(api_key[1]).decode('utf-8')
    return bot_token, bot_chatID
+
+def rand_string(pwdSize=8):
+   """ Generates a random string of letters and digits with pwdSize length """
+   ## all possible letters and numbers
+   chars = string.ascii_letters + string.digits
+   return ''.join((choice(chars)) for x in range(pwdSize))
+
 
 def restricted(func):
    """ Decorator to restrict the use of certain functions """
