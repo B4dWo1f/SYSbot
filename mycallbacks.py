@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 
-from telegram import ChatAction
+from telegram import ChatAction, ParseMode
 from threading import Thread
 from random import choice
 import tools
@@ -19,7 +19,7 @@ def call_delete(bot, job):
    bot.delete_message(chatID,msgID)
 
 def send_picture(bot, chatID, job_queue, pic, msg='',
-                                    t=60,rm=False,delete=True,dis_notif=False):
+                                   t=100,rm=False,delete=True,dis_notif=False):
    """
      Send a picture and, optionally, remove it locally/remotely (rm/delete)
      msg = caption of the picture
@@ -38,10 +38,36 @@ def send_picture(bot, chatID, job_queue, pic, msg='',
 
 def send_sound(bot,chatID,job_queue,audio,msg='',t=10,rm=True,delete=True):
    mp3 = open(audio, 'rb')
+   txt = 'sending audio, it may take a few seconds'
+   M1 = bot.send_message(chatID, text=txt, parse_mode='Markdown')
+   job_queue.run_once(call_delete, t, context=M1)
    bot.send_chat_action(chat_id=chatID, action=ChatAction.UPLOAD_AUDIO)
-   bot.send_audio(chatID, mp3, caption=msg,timeout=50)
+   M = bot.send_audio(chatID, mp3, caption=msg,timeout=50)
    if rm: os.system('rm %s'%(audio))
    if delete: job_queue.run_once(call_delete, t, context=M)
+
+def send_video(bot, chatID, job_queue, vid, msg='',
+               t=60,delete=True,dis_notif=False,warn_wait=True):
+   func = bot.send_video
+   if vid[:4] == 'http': video = vid
+   else:
+      try:
+         video = open(vid, 'rb')  # TODO raise and report if file not found
+         if warn_wait:
+            txt = 'This usually takes a few seconds... be patient'
+            M1 = bot.send_message(chatID, text=txt, parse_mode='Markdown')
+      except:
+         video = vid
+         func = bot.send_animation
+   bot.send_chat_action(chat_id=chatID, action=ChatAction.UPLOAD_VIDEO)
+   job_queue.run_once(call_delete, 55, context=M1)
+   M = func(chatID, video, caption=msg,
+                              timeout=300, disable_notification=dis_notif,
+                              parse_mode=ParseMode.MARKDOWN)
+   if delete:
+      #LG.debug('pic %s to be deleted at %s'%(vid,dt.datetime.now()+dt.timedelta(seconds=t)))
+      job_queue.run_once(call_delete, t, context=M)
+   return M
 
 
 ## Sentinel functions
@@ -80,14 +106,47 @@ def picture(bot,update,job_queue):
       send_picture(bot,chatID,job_queue,pic,msg=txt,t=10,delete=True)
 
 @CR.restricted
-def sound(bot,update):
+def sound(bot,update,job_queue):
    """ Record and send audio from computers microphone """
    chatID = update.message.chat_id
    f = '/tmp/recording.mp3'
    com = 'sox -t alsa default %s silence 1 0.1 1%% 1 1.0 5%%'%(f)
    os.system(com)
-   send_sound(bot,chatID,f)
+   send_sound(bot,chatID,job_queue,f,t=60,rm=True,delete=True)
    bot.send_message(chatID, text='Recorded sound',parse_mode='Markdown')
+
+@CR.restricted
+def recorddesktop(bot,update,job_queue):
+   """
+    Starts and stops recording the desktop where the bot is running
+   """
+   chatID = update.message.chat_id
+   def IsRunning():
+      resp = os.popen('ps -e | grep recordmydesktop').read()
+      if len(resp) == 0: return False
+      else: return True
+   fname = '/tmp/desktop.ogv'
+   is_running = IsRunning()
+   if is_running:
+      txt = 'Stopping "recordmydesktop"'
+      bot.send_message(chatID, text=txt,parse_mode='Markdown')
+      os.system('killall recordmydesktop')
+      while IsRunning():
+         pass
+      fname_new = '.'.join(fname.split('.')[:-1]) + '.mp4'
+      convert = f'ffmpeg -y -i {fname} -vcodec mpeg4 -threads 2 '
+      convert += f'-b:v 1500k -acodec libmp3lame -ab 160k '
+      convert += f"{fname_new}"
+      os.system(convert)
+      send_video(bot, chatID, job_queue, fname_new)
+      os.system(f'rm {fname} {fname_new}')
+   else:
+      txt = 'Starting "recordmydesktop"'
+      bot.send_message(chatID, text=txt,parse_mode='Markdown')
+      com = 'recordmydesktop --on-the-fly-encoding'
+      silent = ' --no-sound -o '
+      com = com + silent + fname + ' &'
+      os.system(com)
 
 def whereRyou(bot,update):
    """ Return the IP where the bot is running """
