@@ -17,4 +17,5 @@ whoami - Return the Telegram information about the user
 who - Linux who implementation
 reload - Stop and restarts de bot
 pull - git pull
+top - returns the output of top
 stop - Stop the daemon
