@@ -5,6 +5,7 @@ In the near future it should provide the tools for system alerts.
 ## Commands
 hola - Echo service to check on service status
 lock - Lock the computer
+unlock - UnLock the computer
 picture - Take a picture from the webcam and send it
 screenshot - Take a screenshot and send it
 sound - Record sound from the microphone and send it
