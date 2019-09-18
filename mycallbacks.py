@@ -46,8 +46,8 @@ def send_sound(bot,chatID,job_queue,audio,msg='',t=10,rm=True,delete=True):
    if rm: os.system('rm %s'%(audio))
    if delete: job_queue.run_once(call_delete, t, context=M)
 
-def send_video(bot, chatID, job_queue, vid, msg='',
-               t=60,delete=True,dis_notif=False,warn_wait=True):
+def send_video(bot, chatID, job_queue, vid, msg='',t=60,
+               rm=False,delete=True,dis_notif=False,warn_wait=True):
    func = bot.send_video
    if vid[:4] == 'http': video = vid
    else:
@@ -56,14 +56,15 @@ def send_video(bot, chatID, job_queue, vid, msg='',
          if warn_wait:
             txt = 'This usually takes a few seconds... be patient'
             M1 = bot.send_message(chatID, text=txt, parse_mode='Markdown')
+            job_queue.run_once(call_delete, 55, context=M1)
       except:
          video = vid
          func = bot.send_animation
    bot.send_chat_action(chat_id=chatID, action=ChatAction.UPLOAD_VIDEO)
-   job_queue.run_once(call_delete, 55, context=M1)
    M = func(chatID, video, caption=msg,
                               timeout=300, disable_notification=dis_notif,
                               parse_mode=ParseMode.MARKDOWN)
+   if rm: os.system('rm %s'%(vid))
    if delete:
       #LG.debug('pic %s to be deleted at %s'%(vid,dt.datetime.now()+dt.timedelta(seconds=t)))
       job_queue.run_once(call_delete, t, context=M)
@@ -140,8 +141,8 @@ def recorddesktop(bot,update,job_queue):
       convert += f'-b:v 1500k -acodec libmp3lame -ab 160k '
       convert += f"{fname_new}"
       os.system(convert)
-      send_video(bot, chatID, job_queue, fname_new)
-      os.system(f'rm {fname} {fname_new}')
+      send_video(bot, chatID, job_queue, fname_new, rm=True)
+      os.system(f'rm {fname}')
    else:
       txt = 'Starting "recordmydesktop"'
       bot.send_message(chatID, text=txt,parse_mode='Markdown')
@@ -160,7 +161,7 @@ def video(bot,update,job_queue):
       resp = os.popen('ps -e | grep ffmpeg').read()
       if len(resp) == 0: return False
       else: return True
-   fname = '/tmp/output.mkv' #.ogv'
+   fname = '/tmp/output.ogv'
    is_running = IsRunning()
    if is_running:
       txt = 'Stop recording'
@@ -174,12 +175,12 @@ def video(bot,update,job_queue):
       convert += f'-b:v 1500k -acodec libmp3lame -ab 160k '
       convert += f"{fname_new}"
       os.system(convert)
-      send_video(bot, chatID, job_queue, fname_new)
-      os.system(f'rm {fname} {fname_new}')
+      send_video(bot, chatID, job_queue, fname_new, rm=True)
+      os.system(f'rm {fname}')
    else:
       txt = 'Start recording'
       bot.send_message(chatID, text=txt,parse_mode='Markdown')
-      com = 'ffmpeg -loglevel quiet -f v4l2 -framerate 25 '
+      com = 'ffmpeg -y -loglevel quiet -f v4l2 -framerate 25 '
       com += '-video_size 1280x720 -i /dev/video0 '
       #com += '-t 00:00:20 '
       com += fname + ' &'
