@@ -10,6 +10,7 @@ picture - Take a picture from the webcam and send it
 screenshot - Take a screenshot and send it
 sound - Record sound from the microphone and send it
 recorddesktop - Record desktop until halted (by calling the command again) and send it
+video - Record video until halted (by calling the command again) and send it
 where - Return the IP where the bot is running
 wherelocal - Return the local IP where the bot is running
 whothere - Return all the devices connected to the bot's network
