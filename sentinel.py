@@ -90,7 +90,7 @@ if __name__ == '__main__':
    dpt.add_handler(CH('screenshot',cb.screenshot, pass_job_queue=True))
    dpt.add_handler(CH('picture', cb.picture, Filters.chat(CR.ADMINS_id),
                                              pass_job_queue=True))
-   dpt.add_handler(CH('sound', cb.sound, pass_job_queue=True))
+   dpt.add_handler(CH('sound', cb.sound, pass_job_queue=True,pass_args=True))
    dpt.add_handler(CH('recorddesktop', cb.recorddesktop, pass_job_queue=True))
    dpt.add_handler(CH('where', cb.whereRyou, Filters.chat(CR.ADMINS_id)))
    dpt.add_handler(CH('wherelocal', cb.whereRyoulocal))
@@ -103,7 +103,7 @@ if __name__ == '__main__':
    dpt.add_handler(CH('reload', restart))
    dpt.add_handler(CH('stop', stop))
    dpt.add_handler(CH('pull', cb.pull,Filters.chat(CR.ADMINS_id)))
-   dpt.add_handler(CH('top', cb.top,Filters.chat(CR.ADMINS_id)))
+   dpt.add_handler(CH('top', cb.top,Filters.chat(CR.ADMINS_id),pass_args=True))
    dpt.add_handler(CH("start", start, Filters.chat(CR.ADMINS_id)))
    
 
