@@ -106,14 +106,16 @@ def picture(bot,update,job_queue):
       send_picture(bot,chatID,job_queue,pic,msg=txt,t=10,delete=True)
 
 @CR.restricted
-def sound(bot,update,job_queue):
+def sound(bot,update,args,job_queue):
    """ Record and send audio from computers microphone """
    chatID = update.message.chat_id
-   f = '/tmp/recording.mp3'
-   com = 'sox -t alsa default %s silence 1 0.1 1%% 1 1.0 5%%'%(f)
+   try: N = float(args[0])
+   except: N=10
+   fname = '/tmp/recording.mp3'
+   #com = 'sox -t alsa default %s silence 1 0.1 1%% 1 1.0 5%%'%(f)
+   com = f'sox -t alsa default {fname} trim 0 {N}'
    os.system(com)
-   send_sound(bot,chatID,job_queue,f,t=60,rm=True,delete=True)
-   bot.send_message(chatID, text='Recorded sound',parse_mode='Markdown')
+   send_sound(bot,chatID,job_queue,fname,t=120,rm=True,delete=True)
 
 @CR.restricted
 def recorddesktop(bot,update,job_queue):
@@ -237,16 +239,17 @@ def pull(bot,update):
    bot.send_message(chat_id=chatID, text=txt,
                     disable_notification=True, parse_mode='Markdown')
 
-def top(bot,update):
+def top(bot,update,args):
    """ Return the first n lines of top command """
    chatID = update.message.chat_id
-   n = 7   # TODO enter ir as argument
+   try: N = int(args[0])
+   except: N = 7   # TODO enter ir as argument
    tmp = '/tmp/top.txt'
-   com = f'top -b -n 1 > {tmp} '
+   com = f'top -b -n 3 > {tmp} '
    com += f'&& tail -n +6 {tmp} && rm {tmp}'
    top = os.popen(com).read().strip()
    keep = []
-   for l in top.splitlines()[:n]:
+   for l in top.splitlines()[:N]:
       ll = l.split()
       l0='%6s %5s %5s %5s %9s %5s'%(ll[0], ll[1], ll[8], ll[9], ll[10], ll[11])
       keep.append(l0)
