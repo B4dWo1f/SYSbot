@@ -92,6 +92,7 @@ if __name__ == '__main__':
                                              pass_job_queue=True))
    dpt.add_handler(CH('sound', cb.sound, pass_job_queue=True,pass_args=True))
    dpt.add_handler(CH('recorddesktop', cb.recorddesktop, pass_job_queue=True))
+   dpt.add_handler(CH('video', cb.video, Filters.chat(CR.ADMINS_id), pass_job_queue=True))
    dpt.add_handler(CH('where', cb.whereRyou, Filters.chat(CR.ADMINS_id)))
    dpt.add_handler(CH('wherelocal', cb.whereRyoulocal))
    dpt.add_handler(CH('whothere', cb.whoSthere))

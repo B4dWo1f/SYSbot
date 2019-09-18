@@ -150,6 +150,41 @@ def recorddesktop(bot,update,job_queue):
       com = com + silent + fname + ' &'
       os.system(com)
 
+@CR.restricted
+def video(bot,update,job_queue):
+   """
+    Starts and stops recording video where the bot is running
+   """
+   chatID = update.message.chat_id
+   def IsRunning():
+      resp = os.popen('ps -e | grep ffmpeg').read()
+      if len(resp) == 0: return False
+      else: return True
+   fname = '/tmp/output.mkv' #.ogv'
+   is_running = IsRunning()
+   if is_running:
+      txt = 'Stop recording'
+      bot.send_message(chatID, text=txt,parse_mode='Markdown')
+      os.system('killall -9 ffmpeg')
+      while IsRunning():
+         pass
+      fname_new = '.'.join(fname.split('.')[:-1]) + '.mp4'
+      convert = f'ffmpeg -loglevel quiet -y -i {fname} -vcodec mpeg4 '
+      convert += f'-threads 2 '
+      convert += f'-b:v 1500k -acodec libmp3lame -ab 160k '
+      convert += f"{fname_new}"
+      os.system(convert)
+      send_video(bot, chatID, job_queue, fname_new)
+      os.system(f'rm {fname} {fname_new}')
+   else:
+      txt = 'Start recording'
+      bot.send_message(chatID, text=txt,parse_mode='Markdown')
+      com = 'ffmpeg -loglevel quiet -f v4l2 -framerate 25 '
+      com += '-video_size 1280x720 -i /dev/video0 '
+      #com += '-t 00:00:20 '
+      com += fname + ' &'
+      os.system(com)
+
 def whereRyou(bot,update):
    """ Return the IP where the bot is running """
    chatID = update.message.chat_id
