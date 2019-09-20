@@ -58,6 +58,13 @@ def restart(update,context):
 @CR.restricted
 def start(update,context):
    #TODO report people joining here
+   ch = update.message.chat
+   msg = f'Joined @{ch.username} '
+   msg += f'({ch.first_name} {ch.last_name}) '
+   msg += f'in chat {ch.id}'
+   LG.warning(msg)
+   with open('users.data','a') as f:
+      f.write(f'{ch.id},@{ch.username},{ch.first_name},{ch.last_name}\n')
    txt = "Welcome, this a test of a private bot"
    txt += ", don't blame me if it doesn't work for you ;p"
    context.bot.send_message(chat_id=update.message.chat_id, text=txt)
