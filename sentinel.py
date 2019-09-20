@@ -3,6 +3,7 @@
 
 from threading import Thread
 # Telegram-Bot libraries
+from telegram import ChatAction, ParseMode
 from telegram.ext import Updater, Filters
 from telegram.ext import CommandHandler as CH #, MessageHandler, Filters
 import datetime as dt
@@ -27,11 +28,12 @@ def shutdown():
    upt.is_idle = False
 
 @CR.restricted
-def stop(bot, update):
-   chatID = update.message.chat_id
+def stop(update, context):
+   LG.info('Bot stopping')
+   try: chatID = update['message']['chat']['id']
+   except TypeError: chatID = update['callback_query']['message']['chat']['id']
    txt = 'I\'ll be shutting down\nI hope to see you soon!'
-   M = bot.send_message(chatID, text=txt,
-                        parse_mode='Markdown')
+   M = context.bot.send_message(chatID, text=txt, parse_mode=ParseMode.MARKDOWN)
    Thread(target=shutdown).start()
 
 
@@ -44,22 +46,34 @@ def stop_and_restart():
    os.execl(sys.executable, sys.executable, *sys.argv)
 
 @CR.restricted
-def restart(bot,update):
+def restart(update,context):
+   LG.info('Bot restarting')
+   try: chatID = update['message']['chat']['id']
+   except TypeError: chatID = update['callback_query']['message']['chat']['id']
    txt = 'Bot is restarting...'
-   chatID = update.message.chat_id
-   bot.send_message(chat_id=chatID, text=txt, parse_mode='Markdown')
+   context.bot.send_message(chat_id=chatID, text=txt, parse_mode=ParseMode.MARKDOWN)
    Thread(target=stop_and_restart).start()
 
 ## Start bot ###################################################################
 @CR.restricted
-def start(bot, update):
+def start(update,context):
+   #TODO report people joining here
+   ch = update.message.chat
+   msg = f'Joined @{ch.username} '
+   msg += f'({ch.first_name} {ch.last_name}) '
+   msg += f'in chat {ch.id}'
+   LG.warning(msg)
+   with open('users.data','a') as f:
+      f.write(f'{ch.id},@{ch.username},{ch.first_name},{ch.last_name}\n')
    txt = "Welcome, this a test of a private bot"
    txt += ", don't blame me if it doesn't work for you ;p"
-   bot.send_message(chat_id=update.message.chat_id, text=txt)
+   context.bot.send_message(chat_id=update.message.chat_id, text=txt)
 
-def ready(bot,job):
+def ready(context):
+   LG.info('Bot is up')
    txt = 'Hi sir! ready for duty'
-   bot.send_message(chatID, text=txt, parse_mode='Markdown')
+   context.bot.send_message(chatID, text=txt, disable_notification=True,
+                                              parse_mode=ParseMode.MARKDOWN)
 
 
 if __name__ == '__main__':
@@ -76,7 +90,7 @@ if __name__ == '__main__':
    token, chatID = CR.get_credentials(token)
 
    ## Define the Bot
-   upt = Updater(token=token)
+   upt = Updater(token=token, use_context=True)
    dpt = upt.dispatcher
    jbq = upt.job_queue
    
