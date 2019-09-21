@@ -20,6 +20,7 @@ LG = logging.getLogger('main')
 # My functions
 import credentials as CR
 import mycallbacks as cb
+import admin
 
 
 ## Stop Bot ####################################################################
@@ -47,29 +48,41 @@ def stop_and_restart():
 
 @CR.restricted
 def restart(update,context):
+   """ Gracefully reload the bot """
    LG.info('Bot restarting')
    try: chatID = update['message']['chat']['id']
    except TypeError: chatID = update['callback_query']['message']['chat']['id']
    txt = 'Bot is restarting...'
-   context.bot.send_message(chat_id=chatID, text=txt, parse_mode=ParseMode.MARKDOWN)
+   context.bot.send_message(chatID, text=txt, parse_mode=ParseMode.MARKDOWN)
    Thread(target=stop_and_restart).start()
 
 ## Start bot ###################################################################
 @CR.restricted
 def start(update,context):
+   """ Greet new users """
    #TODO report people joining here
    ch = update.message.chat
    msg = f'Joined @{ch.username} '
    msg += f'({ch.first_name} {ch.last_name}) '
    msg += f'in chat {ch.id}'
    LG.warning(msg)
-   with open('users.data','a') as f:
-      f.write(f'{ch.id},@{ch.username},{ch.first_name},{ch.last_name}\n')
+   #with open('users.data','a') as f:
+   #   f.write(f'{ch.id},@{ch.username},{ch.first_name},{ch.last_name},False\n')
    txt = "Welcome, this a test of a private bot"
    txt += ", don't blame me if it doesn't work for you ;p"
    context.bot.send_message(chat_id=update.message.chat_id, text=txt)
+   # Register in database
+   conn,c = admin.connect(dbfile)
+   rows = admin.get_usr(conn,c, 'chatid', ch.id, table=table)
+   if len(rows) == 0:
+      LG.warning(f'Adding {ch.username} ({ch.id})')
+      isadmin = ch.id in CR.ADMINS_id
+      admin.insert_usr(conn,c, ch.id, ch.username, ch.first_name,
+                                                   ch.last_name, isadmin)
+   else: LG.info(f'User {ch.username} ({ch.id}) already registered')
 
 def ready(context):
+   """ on-boot greeting """
    LG.info('Bot is up')
    txt = 'Hi sir! ready for duty'
    context.bot.send_message(chatID, text=txt, disable_notification=True,
@@ -88,6 +101,15 @@ if __name__ == '__main__':
          exit()
    
    token, chatID = CR.get_credentials(token)
+
+   # DataBase:
+   field_types = ['chatid integer','username text','first_name text',
+                  'last_name text','is_admin integer']
+   dbfile = 'users.db'
+   table = 'users'
+   conn,c = admin.connect(dbfile)
+   admin.create_db(conn, c, table, ','.join(field_types))
+   conn.close()
 
    ## Define the Bot
    upt = Updater(token=token, use_context=True)
