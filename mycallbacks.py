@@ -234,7 +234,10 @@ def whereRyoulocal(update, context): #(bot,update):
    except TypeError: chatID = update['callback_query']['message']['chat']['id']
    context.bot.send_chat_action(chat_id=chatID, action=ChatAction.TYPING)
    ips = os.popen('hostname -I').read().strip().split()
-   txt = 'My local IP:\n'+ '`'+' '.join(ips) + '`'
+   txt = 'My local IP:\n'
+   txt += f"`{', '.join(ips)}`\n"
+   txt += 'Running in folder:\n'
+   txt += f"`{here}`"
    context.bot.send_message(chatID, text=txt,parse_mode=ParseMode.MARKDOWN)
 
 @CR.restricted
