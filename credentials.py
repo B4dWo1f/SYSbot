@@ -9,9 +9,12 @@ from functools import wraps
 import os
 here = os.path.dirname(os.path.realpath(__file__))
 
-ADMINS_un = open(here+'/username.whitelist','r').read().strip().splitlines()
-ADMINS_id = open(here+'/chatid.whitelist','r').read().strip().splitlines()
-ADMINS_id = [int(x) for x in ADMINS_id]
+ADMINS = open(here+'/whitelist.private','r').read().strip().splitlines()
+ADMINS_id = [int(x.split(',')[0]) for x in ADMINS]
+ADMINS_un = [x.split(',')[1] for x in ADMINS]
+#ADMINS_un = open(here+'/username.whitelist','r').read().strip().splitlines()
+#ADMINS_id = open(here+'/chatid.whitelist','r').read().strip().splitlines()
+#ADMINS_id = [int(x) for x in ADMINS_id]
 
 def encode_credentials(key, chatid, fname='bot.token'):
    """ Encode the key and main chatid in a file """
