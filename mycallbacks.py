@@ -228,6 +228,7 @@ def whereRyou(update, context): #(bot,update):
    txt = '`' + txt + '`'
    context.bot.send_message(chatID, text=txt,parse_mode=ParseMode.MARKDOWN)
 
+@CR.restricted
 def whereRyoulocal(update, context): #(bot,update):
    """ Return the local IP where the bot is running """
    try: chatID = update['message']['chat']['id']
@@ -288,7 +289,7 @@ def hola(update, context):
    M = context.bot.send_message(chatID, text=txt,
                                 parse_mode=ParseMode.MARKDOWN)
 
-
+@CR.restricted
 def screen_lock(update, context): #(bot,update):
    """ Lock the computer """
    try: chatID = update['message']['chat']['id']
