@@ -57,7 +57,7 @@ def restart(update,context):
    Thread(target=stop_and_restart).start()
 
 ## Start bot ###################################################################
-@CR.restricted
+#@CR.restricted
 def start(update,context):
    """ Greet new users """
    #TODO report people joining here
