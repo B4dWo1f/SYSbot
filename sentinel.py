@@ -3,6 +3,7 @@
 
 from threading import Thread
 # Telegram-Bot libraries
+from telegram import ChatAction, ParseMode
 from telegram.ext import Updater, Filters
 from telegram.ext import CommandHandler as CH #, MessageHandler, Filters
 import datetime as dt
@@ -19,6 +20,7 @@ LG = logging.getLogger('main')
 # My functions
 import credentials as CR
 import mycallbacks as cb
+import admin
 
 
 ## Stop Bot ####################################################################
@@ -27,11 +29,12 @@ def shutdown():
    upt.is_idle = False
 
 @CR.restricted
-def stop(bot, update):
-   chatID = update.message.chat_id
+def stop(update, context):
+   LG.info('Bot stopping')
+   try: chatID = update['message']['chat']['id']
+   except TypeError: chatID = update['callback_query']['message']['chat']['id']
    txt = 'I\'ll be shutting down\nI hope to see you soon!'
-   M = bot.send_message(chatID, text=txt,
-                        parse_mode='Markdown')
+   M = context.bot.send_message(chatID, text=txt, parse_mode=ParseMode.MARKDOWN)
    Thread(target=shutdown).start()
 
 
@@ -44,22 +47,46 @@ def stop_and_restart():
    os.execl(sys.executable, sys.executable, *sys.argv)
 
 @CR.restricted
-def restart(bot,update):
+def restart(update,context):
+   """ Gracefully reload the bot """
+   LG.info('Bot restarting')
+   try: chatID = update['message']['chat']['id']
+   except TypeError: chatID = update['callback_query']['message']['chat']['id']
    txt = 'Bot is restarting...'
-   chatID = update.message.chat_id
-   bot.send_message(chat_id=chatID, text=txt, parse_mode='Markdown')
+   context.bot.send_message(chatID, text=txt, parse_mode=ParseMode.MARKDOWN)
    Thread(target=stop_and_restart).start()
 
 ## Start bot ###################################################################
-@CR.restricted
-def start(bot, update):
+#@CR.restricted
+def start(update,context):
+   """ Greet new users """
+   #TODO report people joining here
+   ch = update.message.chat
+   msg = f'Joined @{ch.username} '
+   msg += f'({ch.first_name} {ch.last_name}) '
+   msg += f'in chat {ch.id}'
+   LG.warning(msg)
+   #with open('users.data','a') as f:
+   #   f.write(f'{ch.id},@{ch.username},{ch.first_name},{ch.last_name},False\n')
    txt = "Welcome, this a test of a private bot"
    txt += ", don't blame me if it doesn't work for you ;p"
-   bot.send_message(chat_id=update.message.chat_id, text=txt)
+   context.bot.send_message(chat_id=update.message.chat_id, text=txt)
+   # Register in database
+   conn,c = admin.connect(dbfile)
+   rows = admin.get_usr(conn,c, 'chatid', ch.id, table=table)
+   if len(rows) == 0:
+      LG.warning(f'Adding {ch.username} ({ch.id})')
+      isadmin = ch.id in CR.ADMINS_id
+      admin.insert_usr(conn,c, ch.id, ch.username, ch.first_name,
+                                                   ch.last_name, isadmin)
+   else: LG.info(f'User {ch.username} ({ch.id}) already registered')
 
-def ready(bot,job):
+def ready(context):
+   """ on-boot greeting """
+   LG.info('Bot is up')
    txt = 'Hi sir! ready for duty'
-   bot.send_message(chatID, text=txt, parse_mode='Markdown')
+   context.bot.send_message(chatID, text=txt, disable_notification=True,
+                                              parse_mode=ParseMode.MARKDOWN)
 
 
 if __name__ == '__main__':
@@ -75,8 +102,17 @@ if __name__ == '__main__':
    
    token, chatID = CR.get_credentials(token)
 
+   # DataBase:
+   field_types = ['chatid integer','username text','first_name text',
+                  'last_name text','is_admin integer']
+   dbfile = 'users.db'
+   table = 'users'
+   conn,c = admin.connect(dbfile)
+   admin.create_db(conn, c, table, ','.join(field_types))
+   conn.close()
+
    ## Define the Bot
-   upt = Updater(token=token)
+   upt = Updater(token=token, use_context=True)
    dpt = upt.dispatcher
    jbq = upt.job_queue
    
@@ -105,7 +141,7 @@ if __name__ == '__main__':
    dpt.add_handler(CH('stop', stop))
    dpt.add_handler(CH('pull', cb.pull,Filters.chat(CR.ADMINS_id)))
    dpt.add_handler(CH('top', cb.top,Filters.chat(CR.ADMINS_id),pass_args=True))
-   dpt.add_handler(CH("start", start, Filters.chat(CR.ADMINS_id)))
+   dpt.add_handler(CH("start", start)) 
    
 
    now = dt.datetime.now()
