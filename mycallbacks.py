@@ -323,6 +323,17 @@ def pull(update, context): #(bot,update):
                             disable_notification=True,
                             parse_mode=ParseMode.MARKDOWN)
 
+def gitcheck(update, context):
+   """ check remote repo for updates """
+   try: chatID = update['message']['chat']['id']
+   except TypeError: chatID = update['callback_query']['message']['chat']['id']
+   com = f'cd {here} && git remote -v update && git status'
+   txt = os.popen(com).read().strip()
+   txt = '`' + txt + '`'
+   context.bot.send_message(chat_id=chatID, text=txt,
+                            disable_notification=True,
+                            parse_mode=ParseMode.MARKDOWN)
+
 def top(update, context):
    """ Return the first n lines of top command """
    try: chatID = update['message']['chat']['id']
