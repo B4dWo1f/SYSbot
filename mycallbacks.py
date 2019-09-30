@@ -323,7 +323,18 @@ def pull(update, context): #(bot,update):
                             disable_notification=True,
                             parse_mode=ParseMode.MARKDOWN)
 
-def top(update, context): #(bot,update,args):
+def gitcheck(update, context):
+   """ check remote repo for updates """
+   try: chatID = update['message']['chat']['id']
+   except TypeError: chatID = update['callback_query']['message']['chat']['id']
+   com = f'cd {here} && git remote -v update && git status'
+   txt = os.popen(com).read().strip()
+   txt = '`' + txt + '`'
+   context.bot.send_message(chat_id=chatID, text=txt,
+                            disable_notification=True,
+                            parse_mode=ParseMode.MARKDOWN)
+
+def top(update, context):
    """ Return the first n lines of top command """
    try: chatID = update['message']['chat']['id']
    except TypeError: chatID = update['callback_query']['message']['chat']['id']
@@ -340,6 +351,39 @@ def top(update, context): #(bot,update,args):
       keep.append(l0)
    top = '`' + '\n'.join(keep) + '`'
    context.bot.send_message(chat_id=chatID, text=top,
+                            disable_notification=True,
+                            parse_mode=ParseMode.MARKDOWN)
+
+def mute(update, context):
+   """ Mute computer """
+   try: chatID = update['message']['chat']['id']
+   except TypeError: chatID = update['callback_query']['message']['chat']['id']
+   com = 'amixer -q set Master mute'
+   os.system(com)
+   context.bot.send_message(chat_id=chatID, text='Computer muted',
+                            disable_notification=True,
+                            parse_mode=ParseMode.MARKDOWN)
+
+def unmute(update, context):
+   """ Mute computer """
+   try: chatID = update['message']['chat']['id']
+   except TypeError: chatID = update['callback_query']['message']['chat']['id']
+   com = 'amixer -q set Master unmute'
+   com += ' && ' + 'amixer -q set Headphone unmute'
+   com += ' && ' + 'amixer -q set Speaker unmute'
+   os.system(com)
+   context.bot.send_message(chat_id=chatID, text='Computer unmuted',
+                            disable_notification=True,
+                            parse_mode=ParseMode.MARKDOWN)
+
+def volume(update, context):
+   """ Mute computer """
+   try: chatID = update['message']['chat']['id']
+   except TypeError: chatID = update['callback_query']['message']['chat']['id']
+   vol = int(context.args[0])
+   com = f'amixer -q set Master {vol}%'
+   os.system(com)
+   context.bot.send_message(chat_id=chatID, text='Computer muted',
                             disable_notification=True,
                             parse_mode=ParseMode.MARKDOWN)
 

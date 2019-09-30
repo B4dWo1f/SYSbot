@@ -1,12 +1,17 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 
+import load
+
+P = load.setup()
+
 from threading import Thread
 # Telegram-Bot libraries
 from telegram import ChatAction, ParseMode
 from telegram.ext import Updater, Filters
 from telegram.ext import CommandHandler as CH #, MessageHandler, Filters
 import datetime as dt
+import sys
 import os
 here = os.path.dirname(os.path.realpath(__file__))
 HOSTNAME = os.uname()[1]
@@ -15,7 +20,7 @@ import logging
 logging.basicConfig(level=logging.INFO,
                  format='%(asctime)s %(name)s:%(levelname)s - %(message)s',
                  datefmt='%Y/%m/%d-%H:%M',
-                 filename=here+'/sentinel.log', filemode='w')
+                 filename=P.log_file, filemode='w')
 LG = logging.getLogger('main')
 # My functions
 import credentials as CR
@@ -90,22 +95,21 @@ def ready(context):
 
 
 if __name__ == '__main__':
-   import sys
 
-   try: token = sys.argv[1]
-   except IndexError:
-      if os.path.isfile(here+f'/{HOSTNAME}.token'):
-         token = here+f'/{HOSTNAME}.token'
-      else:
-         print('File not specified')
-         exit()
+   #try: token = sys.argv[1]
+   #except IndexError:
+   #   if os.path.isfile(here+f'/{HOSTNAME}.token'):
+   #      token = here+f'/{HOSTNAME}.token'
+   #   else:
+   #      print('File not specified')
+   #      exit()
    
-   token, chatID = CR.get_credentials(token)
+   token, chatID = CR.get_credentials(P.token_file)
 
    # DataBase:
    field_types = ['chatid integer','username text','first_name text',
                   'last_name text','is_admin integer']
-   dbfile = 'users.db'
+   dbfile = P.users_db
    table = 'users'
    conn,c = admin.connect(dbfile)
    admin.create_db(conn, c, table, ','.join(field_types))
@@ -128,7 +132,8 @@ if __name__ == '__main__':
                                              pass_job_queue=True))
    dpt.add_handler(CH('sound', cb.sound, pass_job_queue=True,pass_args=True))
    dpt.add_handler(CH('recorddesktop', cb.recorddesktop, pass_job_queue=True))
-   dpt.add_handler(CH('video', cb.video, Filters.chat(CR.ADMINS_id), pass_job_queue=True))
+   dpt.add_handler(CH('video', cb.video, Filters.chat(CR.ADMINS_id),
+                                                          pass_job_queue=True))
    dpt.add_handler(CH('where', cb.whereRyou, Filters.chat(CR.ADMINS_id)))
    dpt.add_handler(CH('wherelocal', cb.whereRyoulocal))
    dpt.add_handler(CH('whothere', cb.whoSthere))
@@ -140,7 +145,12 @@ if __name__ == '__main__':
    dpt.add_handler(CH('reload', restart))
    dpt.add_handler(CH('stop', stop))
    dpt.add_handler(CH('pull', cb.pull,Filters.chat(CR.ADMINS_id)))
+   dpt.add_handler(CH('gitcheck', cb.gitcheck,Filters.chat(CR.ADMINS_id)))
    dpt.add_handler(CH('top', cb.top,Filters.chat(CR.ADMINS_id),pass_args=True))
+   dpt.add_handler(CH('mute', cb.mute, Filters.chat(CR.ADMINS_id)))
+   dpt.add_handler(CH('unmute', cb.unmute, Filters.chat(CR.ADMINS_id)))
+   dpt.add_handler(CH('volume', cb.volume,
+                                    Filters.chat(CR.ADMINS_id),pass_args=True))
    dpt.add_handler(CH("start", start)) 
    
 
