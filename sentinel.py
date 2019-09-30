@@ -146,6 +146,10 @@ if __name__ == '__main__':
    dpt.add_handler(CH('stop', stop))
    dpt.add_handler(CH('pull', cb.pull,Filters.chat(CR.ADMINS_id)))
    dpt.add_handler(CH('top', cb.top,Filters.chat(CR.ADMINS_id),pass_args=True))
+   dpt.add_handler(CH('mute', cb.mute, Filters.chat(CR.ADMINS_id)))
+   dpt.add_handler(CH('unmute', cb.unmute, Filters.chat(CR.ADMINS_id)))
+   dpt.add_handler(CH('volume', cb.volume,
+                                    Filters.chat(CR.ADMINS_id),pass_args=True))
    dpt.add_handler(CH("start", start)) 
    
 

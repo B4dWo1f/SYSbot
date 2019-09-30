@@ -19,4 +19,7 @@ who - Linux who implementation
 reload - Stop and restarts de bot  
 pull - git pull  
 top - returns the output of top  
+mute - Mute computer  
+unmute - Unmute computer  
+unmute - Set computer volume to a percentage  
 stop - Stop the daemon  
