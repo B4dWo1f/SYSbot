@@ -18,8 +18,9 @@ whoami - Return the Telegram information about the user
 who - Linux who implementation  
 reload - Stop and restarts de bot  
 pull - git pull  
+gitcheck - check remote updates of repo  
 top - returns the output of top  
 mute - Mute computer  
 unmute - Unmute computer  
-unmute - Set computer volume to a percentage  
+volume - Set computer volume to a percentage  
 stop - Stop the daemon  
