@@ -383,7 +383,8 @@ def volume(update, context):
    vol = int(context.args[0])
    com = f'amixer -q set Master {vol}%'
    os.system(com)
-   context.bot.send_message(chat_id=chatID, text='Computer muted',
+   context.bot.send_message(chat_id=chatID,
+                            text=f'Computer volume set to {vol}',
                             disable_notification=True,
                             parse_mode=ParseMode.MARKDOWN)
 
