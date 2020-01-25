@@ -11,6 +11,7 @@ from telegram import ChatAction, ParseMode
 from telegram.ext import Updater, Filters
 from telegram.ext import CommandHandler as CH #, MessageHandler, Filters
 import datetime as dt
+from random import choice
 import sys
 import os
 here = os.path.dirname(os.path.realpath(__file__))
@@ -89,7 +90,9 @@ def start(update,context):
 def ready(context):
    """ on-boot greeting """
    LG.info('Bot is up')
-   txt = 'Hi sir! ready for duty'
+   txt = choice(['Hi sir! ready for duty',
+                 'Load and running',
+                 'At your service, sir'])
    context.bot.send_message(chatID, text=txt, disable_notification=True,
                                               parse_mode=ParseMode.MARKDOWN)
 
