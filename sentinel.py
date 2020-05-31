@@ -1,9 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 
-import load
-
-P = load.setup()
 
 from threading import Thread
 # Telegram-Bot libraries
@@ -17,6 +14,10 @@ import os
 here = os.path.dirname(os.path.realpath(__file__))
 HOSTNAME = os.uname()[1]
 HOME = os.getenv('HOME')
+
+import load
+P = load.setup(f'{here}/config.ini')
+
 import logging
 logging.basicConfig(level=logging.INFO,
                  format='%(asctime)s %(name)s:%(levelname)s - %(message)s',
