@@ -138,6 +138,7 @@ def picture(update, context): #(bot,update,job_queue):
 @CR.restricted
 def sound(update, context): #(bot,update,args,job_queue):
    """ Record and send audio from computers microphone """
+   LG.debug('Starting sound capture')
    try: chatID = update['message']['chat']['id']
    except TypeError: chatID = update['callback_query']['message']['chat']['id']
    try: N = float(args[0])
@@ -145,8 +146,10 @@ def sound(update, context): #(bot,update,args,job_queue):
    fname = '/tmp/recording.mp3'
    #com = 'sox -t alsa default %s silence 1 0.1 1%% 1 1.0 5%%'%(f)
    com = f'sox -t alsa default {fname} trim 0 {N}'
+   LG.debug(f'com: {com}')
    os.system(com)
    send_sound(update,context, fname,t=60,rm=True,delete=True)
+   LG.debug('Sound capture ended')
 
 @CR.restricted
 def recorddesktop(update, context): #(bot,update,job_queue):
