@@ -145,6 +145,7 @@ def sound(update, context): #(bot,update,args,job_queue):
    fname = '/tmp/recording.mp3'
    #com = 'sox -t alsa default %s silence 1 0.1 1%% 1 1.0 5%%'%(f)
    com = f'sox -t alsa default {fname} trim 0 {N}'
+   LG.warning(com)
    os.system(com)
    send_sound(update,context, fname,t=60,rm=True,delete=True)
 
