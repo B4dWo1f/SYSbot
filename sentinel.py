@@ -129,6 +129,7 @@ if __name__ == '__main__':
    #sys handlers
    dpt.add_handler(CH('lock', cb.screen_lock))
    dpt.add_handler(CH('unlock', cb.screen_unlock, Filters.chat(CR.ADMINS_id)))
+   dpt.add_handler(CH('suspend', cb.suspend))
 
    #sentinel handlers
    dpt.add_handler(CH('screenshot',cb.screenshot, pass_job_queue=True))
