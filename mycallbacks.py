@@ -304,6 +304,19 @@ def screen_lock(update, context): #(bot,update):
                             parse_mode=ParseMode.MARKDOWN)
 
 @CR.restricted
+def suspend(update, context): #(bot,update):
+   """ suspend the computer """
+   try: chatID = update['message']['chat']['id']
+   except TypeError: chatID = update['callback_query']['message']['chat']['id']
+   LG.info(f'Suspend recived from: {chatID}')
+   context.bot.send_message(chat_id=chatID, text='Computer suspended',
+                            disable_notification=True,
+                            parse_mode=ParseMode.MARKDOWN)
+   com = 'systemctl suspend'
+   LG.info(f'com: {com}')
+   os.system(com)
+
+@CR.restricted
 def screen_unlock(update, context): #(bot,update):
    """ Lock the computer """
    try: chatID = update['message']['chat']['id']
